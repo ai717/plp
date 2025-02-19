@@ -78,6 +78,39 @@ document.addEventListener('DOMContentLoaded', () => {
             bottles.splice(index, 1);
             this.saveBottles(bottles);
             return bottle;
+        },
+
+        // 扔漂流瓶
+        async addBottle(content) {
+            try {
+                const response = await fetch('/php/throw.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ content })
+                });
+                const result = await response.json();
+                return result.success;
+            } catch (error) {
+                console.error('扔漂流瓶失败:', error);
+                return false;
+            }
+        },
+
+        // 捡漂流瓶
+        async pickBottle() {
+            try {
+                const response = await fetch('/php/pick.php');
+                const result = await response.json();
+                if (result.success) {
+                    return result.bottle;
+                }
+                return null;
+            } catch (error) {
+                console.error('捡漂流瓶失败:', error);
+                return null;
+            }
         }
     };
 
@@ -98,10 +131,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // 发送消息
-    sendMessage.addEventListener('click', () => {
+    sendMessage.addEventListener('click', async () => {
         const content = message.value.trim();
         if (content) {
-            if (Storage.addBottle(content)) {
+            if (await Storage.addBottle(content)) {
                 message.value = '';
                 writeMessage.classList.add('hidden');
                 showToast('漂流瓶已经扔出去啦！');
@@ -115,8 +148,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // 捡漂流瓶
-    pickBottle.addEventListener('click', () => {
-        const bottle = Storage.pickBottle();
+    pickBottle.addEventListener('click', async () => {
+        const bottle = await Storage.pickBottle();
         if (bottle) {
             foundMessage.innerHTML = `
                 <div class="bottle-content">${bottle.content}</div>
