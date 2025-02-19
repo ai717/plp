@@ -5,7 +5,8 @@ const CACHE_URLS = [
     '/css/style.css',
     '/js/main.js',
     '/404.html',
-    '/50x.html'
+    '/50x.html',
+    '/icon.png'
 ];
 
 // 安装Service Worker

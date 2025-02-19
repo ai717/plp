@@ -15,4 +15,19 @@ class DB {
         return self::$conn;
     }
 }
+
+// 添加数据库连接池
+class DBPool {
+    private static $connections = [];
+    private static $maxConnections = 10;
+    
+    public static function getConnection() {
+        if (count(self::$connections) < self::$maxConnections) {
+            $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+            self::$connections[] = $conn;
+            return $conn;
+        }
+        return self::$connections[array_rand(self::$connections)];
+    }
+}
 ?> 

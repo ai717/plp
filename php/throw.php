@@ -22,6 +22,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 require_once 'db.php';
 
+// 添加内容敏感词过滤
+function containsSensitiveWords($content) {
+    $sensitiveWords = ['广告', '违法', '色情', '赌博']; // 可以扩展
+    foreach ($sensitiveWords as $word) {
+        if (stripos($content, $word) !== false) {
+            return true;
+        }
+    }
+    return false;
+}
+
 try {
     // 获取原始POST数据
     $raw_data = file_get_contents('php://input');
@@ -37,6 +48,9 @@ try {
     
     $content = $data['content'] ?? '';
     $ip = $_SERVER['REMOTE_ADDR'];
+    if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+        $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+    }
 
     if (empty($content)) {
         error_log("Empty content received");
@@ -54,6 +68,13 @@ try {
     // 添加内容过滤
     $content = strip_tags($content);
     $content = htmlspecialchars($content, ENT_QUOTES, 'UTF-8');
+    
+    // 在内容检查时添加
+    if (containsSensitiveWords($content)) {
+        error_log("Sensitive content detected");
+        echo json_encode(['success' => false, 'message' => '内容包含敏感词']);
+        exit;
+    }
     
     // 添加频率限制
     $conn = DB::getConnection();

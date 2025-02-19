@@ -264,6 +264,45 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // 添加加载状态
+    function showLoading(message = '加载中...') {
+        const loading = document.createElement('div');
+        loading.className = 'loading';
+        loading.innerHTML = `
+            <div class="loading-spinner"></div>
+            <div class="loading-text">${message}</div>
+        `;
+        document.body.appendChild(loading);
+        return loading;
+    }
+
+    // 添加确认对话框
+    function showConfirm(message) {
+        return new Promise((resolve) => {
+            const dialog = document.createElement('div');
+            dialog.className = 'confirm-dialog';
+            dialog.innerHTML = `
+                <div class="confirm-content">
+                    <p>${message}</p>
+                    <div class="confirm-buttons">
+                        <button class="confirm-yes">确定</button>
+                        <button class="confirm-no">取消</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(dialog);
+            
+            dialog.querySelector('.confirm-yes').onclick = () => {
+                dialog.remove();
+                resolve(true);
+            };
+            dialog.querySelector('.confirm-no').onclick = () => {
+                dialog.remove();
+                resolve(false);
+            };
+        });
+    }
+
     // 添加加载动画
     function showLoading() {
         const loading = document.createElement('div');
