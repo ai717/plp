@@ -22,27 +22,22 @@ try {
         }
         echo "\n";
         
-        // 测试写入
-        $testSql = "INSERT INTO bottles (content, created_at, picked) VALUES ('测试漂流瓶', NOW(), 0)";
-        if ($conn->query($testSql)) {
-            echo "测试写入成功！\n";
-            echo "插入ID: " . $conn->insert_id . "\n\n";
-        } else {
-            echo "写入失败：" . $conn->error . "\n\n";
-        }
+        // 显示未被捡走的漂流瓶数量
+        $result = $conn->query("SELECT COUNT(*) as count FROM bottles WHERE picked = 0");
+        $row = $result->fetch_assoc();
+        echo "当前有 " . $row['count'] . " 个未被捡走的漂流瓶\n";
         
-        // 显示所有漂流瓶
-        $result = $conn->query("SELECT * FROM bottles ORDER BY created_at DESC");
-        if ($result) {
-            echo "当前所有漂流瓶：\n";
-            while ($row = $result->fetch_assoc()) {
-                echo "ID: " . $row['id'] . "\n";
-                echo "内容: " . $row['content'] . "\n";
-                echo "时间: " . $row['created_at'] . "\n";
-                echo "状态: " . ($row['picked'] ? '已捡走' : '未捡走') . "\n\n";
+        // 显示最新的漂流瓶
+        $result = $conn->query("SELECT * FROM bottles ORDER BY created_at DESC LIMIT 5");
+        if ($result->num_rows > 0) {
+            echo "\n最新5个漂流瓶：\n";
+            while ($bottle = $result->fetch_assoc()) {
+                echo "ID: " . $bottle['id'] . "\n";
+                echo "内容: " . $bottle['content'] . "\n";
+                echo "IP: " . $bottle['ip'] . "\n";
+                echo "时间: " . $bottle['created_at'] . "\n";
+                echo "状态: " . ($bottle['picked'] ? '已捡走' : '未捡走') . "\n\n";
             }
-        } else {
-            echo "查询失败：" . $conn->error . "\n";
         }
     } else {
         echo "bottles表不存在！\n";

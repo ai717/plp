@@ -36,6 +36,7 @@ try {
     }
     
     $content = $data['content'] ?? '';
+    $ip = $_SERVER['REMOTE_ADDR'];
 
     if (empty($content)) {
         error_log("Empty content received");
@@ -43,11 +44,38 @@ try {
         exit;
     }
 
+    // 添加内容长度限制
+    if (mb_strlen($content) > 1000) {
+        error_log("Content too long");
+        echo json_encode(['success' => false, 'message' => '内容不能超过1000字']);
+        exit;
+    }
+    
+    // 添加内容过滤
+    $content = strip_tags($content);
+    $content = htmlspecialchars($content, ENT_QUOTES, 'UTF-8');
+    
+    // 添加频率限制
     $conn = DB::getConnection();
-    $content = $conn->real_escape_string($content);
-    $sql = "INSERT INTO bottles (content, created_at, picked) VALUES ('$content', NOW(), 0)";
+    $sql = "SELECT COUNT(*) as count FROM bottles WHERE created_at > DATE_SUB(NOW(), INTERVAL 1 HOUR) AND ip = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param('s', $ip);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $count = $result->fetch_assoc()['count'];
+    
+    if ($count > 10) {
+        error_log("Rate limit exceeded for IP: $ip");
+        echo json_encode(['success' => false, 'message' => '扔漂流瓶太频繁了，休息一下吧']);
+        exit;
+    }
 
-    if ($conn->query($sql)) {
+    // 插入漂流瓶
+    $sql = "INSERT INTO bottles (content, ip, created_at, picked) VALUES (?, ?, NOW(), 0)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param('ss', $content, $ip);
+
+    if ($stmt->execute()) {
         error_log("Successfully inserted bottle with content: " . $content);
         echo json_encode(['success' => true, 'message' => '漂流瓶已扔出']);
     } else {

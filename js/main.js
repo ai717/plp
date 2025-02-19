@@ -263,4 +263,31 @@ document.addEventListener('DOMContentLoaded', () => {
             readMessage.classList.add('hidden');
         });
     });
+
+    // 添加加载动画
+    function showLoading() {
+        const loading = document.createElement('div');
+        loading.className = 'loading-spinner';
+        document.body.appendChild(loading);
+        return loading;
+    }
+
+    // 添加错误重试机制
+    async function fetchWithRetry(url, options, maxRetries = 3) {
+        for (let i = 0; i < maxRetries; i++) {
+            try {
+                const response = await fetch(url, options);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                return response;
+            } catch (error) {
+                if (i === maxRetries - 1) throw error;
+                await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));
+            }
+        }
+    }
+
+    // 添加离线支持
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js');
+    }
 }); 
