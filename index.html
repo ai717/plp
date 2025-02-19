@@ -15,7 +15,20 @@
             <img src="/icon.png" alt="漂流瓶" class="logo">
             <h1>网络漂流瓶</h1>
         </div>
-        <div class="bottle-count"></div>
+        <div class="user-section">
+            <!-- 未登录状态 -->
+            <div id="loginSection" class="hidden">
+                <button id="showLogin">登录</button>
+                <button id="showRegister">注册</button>
+            </div>
+            <!-- 已登录状态 -->
+            <div id="userSection" class="hidden">
+                <span class="username"></span>
+                <button id="myCoast">我的海岸</button>
+                <button id="logout">退出</button>
+            </div>
+        </div>
+        <div class="bottle-count">海里还有 0 个漂流瓶</div>
         
         <div class="actions">
             <button id="throwBottle">扔一个漂流瓶</button>
@@ -36,6 +49,40 @@
                 <h2>捡到一个漂流瓶！</h2>
                 <p id="foundMessage"></p>
                 <button class="close">关闭</button>
+            </div>
+        </div>
+
+        <!-- 登录表单 -->
+        <div id="loginModal" class="modal hidden">
+            <div class="modal-content">
+                <h2>登录</h2>
+                <div class="form-group">
+                    <input type="text" id="loginUsername" placeholder="用户名" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="loginPassword" placeholder="密码" required>
+                </div>
+                <div class="form-actions">
+                    <button id="loginSubmit">登录</button>
+                    <button class="close">取消</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 注册表单 -->
+        <div id="registerModal" class="modal hidden">
+            <div class="modal-content">
+                <h2>注册</h2>
+                <div class="form-group">
+                    <input type="text" id="registerUsername" placeholder="用户名 (至少5位字母和数字组合)" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="registerPassword" placeholder="密码 (至少5位)" required>
+                </div>
+                <div class="form-actions">
+                    <button id="registerSubmit">注册</button>
+                    <button class="close">取消</button>
+                </div>
             </div>
         </div>
     </div>

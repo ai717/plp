@@ -36,6 +36,12 @@ self.addEventListener('activate', (event) => {
 
 // 处理请求
 self.addEventListener('fetch', (event) => {
+    // 对于API请求不使用缓存
+    if (event.request.url.includes('/php/')) {
+        event.respondWith(fetch(event.request));
+        return;
+    }
+
     event.respondWith(
         caches.match(event.request)
             .then((response) => {

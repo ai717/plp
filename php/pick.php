@@ -4,6 +4,7 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, X-Requested-With');
 header('Content-Type: application/json');
+header('Cache-Control: no-store, no-cache, must-revalidate');
 
 // 处理 OPTIONS 预检请求
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -11,9 +12,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit(0);
 }
 
+session_start();
+
 require_once 'db.php';
 
 try {
+    // 检查是否登录
+    if (!isset($_SESSION['user_id'])) {
+        echo json_encode(['success' => false, 'message' => '请先登录']);
+        exit;
+    }
+
     $conn = DB::getConnection();
     $ip = $_SERVER['REMOTE_ADDR'];
     if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
@@ -25,12 +34,12 @@ try {
             WHERE b.pick_count < 5 
             AND NOT EXISTS (
                 SELECT 1 FROM bottle_picks bp 
-                WHERE bp.bottle_id = b.id AND bp.ip = ?
+                WHERE bp.bottle_id = b.id AND (bp.ip = ? OR bp.user_id = ?)
             )
-            ORDER BY RAND() LIMIT 1";
+            ORDER BY RAND() * id LIMIT 1";
             
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param('s', $ip);
+    $stmt->bind_param('si', $ip, $_SESSION['user_id']);
     $stmt->execute();
     $result = $stmt->get_result();
 
@@ -48,9 +57,9 @@ try {
             $stmt->execute();
             
             // 记录谁捡的
-            $pickSql = "INSERT INTO bottle_picks (bottle_id, ip, picked_at) VALUES (?, ?, NOW())";
+            $pickSql = "INSERT INTO bottle_picks (bottle_id, ip, user_id, picked_at) VALUES (?, ?, ?, NOW())";
             $stmt = $conn->prepare($pickSql);
-            $stmt->bind_param('is', $bottle['id'], $ip);
+            $stmt->bind_param('isi', $bottle['id'], $ip, $_SESSION['user_id']);
             $stmt->execute();
             
             // 提交事务
@@ -62,7 +71,7 @@ try {
                     'id' => $bottle['id'],
                     'content' => $bottle['content'],
                     'time' => $bottle['created_at'],
-                    'pick_count' => $bottle['pick_count'] + 1
+                    'pick_count' => $bottle['pick_count'] + 1  // 加1因为我们刚刚更新了
                 ]
             ]);
             error_log("Successfully picked bottle ID: " . $bottle['id']);

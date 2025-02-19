@@ -1,0 +1,127 @@
+.user-info {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.info-card {
+    margin-top: 15px;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    gap: 10px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 5px;
+}
+
+.info-item label {
+    font-weight: bold;
+    min-width: 80px;
+}
+
+.info-item button {
+    padding: 8px 16px;
+    font-size: 14px;
+    background: #1c92d2;
+    color: white;
+}
+
+.info-item button:hover {
+    background: #1a7fb8;
+}
+
+.tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.tab {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+}
+
+.tab.active {
+    background: #1c92d2;
+    color: white;
+}
+
+.bottle-list {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 10px;
+    padding: 20px;
+    min-height: 200px;
+}
+
+.bottle-item {
+    border-bottom: 1px solid #eee;
+    padding: 15px 0;
+}
+
+.bottle-item:last-child {
+    border-bottom: none;
+}
+
+.bottle-content {
+    margin-bottom: 10px;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+.bottle-meta {
+    display: flex;
+    justify-content: space-between;
+    color: #666;
+    font-size: 12px;
+}
+
+.back-button {
+    margin-top: 20px;
+}
+
+.modal-content {
+    max-width: 400px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.form-group input:focus {
+    border-color: #1c92d2;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(28, 146, 210, 0.2);
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.form-actions button {
+    padding: 8px 20px;
+    font-size: 14px;
+}
+
+.form-actions button.close {
+    background: #f5f5f5;
+    color: #333;
+} 

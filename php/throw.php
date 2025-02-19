@@ -4,6 +4,7 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, X-Requested-With');
 header('Content-Type: application/json');
+header('Cache-Control: no-store, no-cache, must-revalidate');
 
 // 记录所有请求头
 $headers = getallheaders();
@@ -19,6 +20,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     header('HTTP/1.1 200 OK');
     exit(0);
 }
+
+session_start();
 
 require_once 'db.php';
 
@@ -76,29 +79,23 @@ try {
         exit;
     }
     
-    // 添加频率限制
-    $conn = DB::getConnection();
-    $sql = "SELECT COUNT(*) as count FROM bottles WHERE created_at > DATE_SUB(NOW(), INTERVAL 1 HOUR) AND ip = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param('s', $ip);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $count = $result->fetch_assoc()['count'];
-    
-    if ($count > 10) {
-        error_log("Rate limit exceeded for IP: $ip");
-        echo json_encode(['success' => false, 'message' => '扔漂流瓶太频繁了，休息一下吧']);
-        exit;
-    }
+    // 频率限制已移除（测试用）
 
     // 插入漂流瓶
-    $sql = "INSERT INTO bottles (content, ip, created_at, picked) VALUES (?, ?, NOW(), 0)";
+    $conn = DB::getConnection();
+    $sql = "INSERT INTO bottles (content, ip, user_id, created_at, pick_count) VALUES (?, ?, ?, NOW(), 0)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param('ss', $content, $ip);
+    $user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
+    $stmt->bind_param('ssi', $content, $ip, $user_id);
 
     if ($stmt->execute()) {
         error_log("Successfully inserted bottle with content: " . $content);
         echo json_encode(['success' => true, 'message' => '漂流瓶已扔出']);
+        // 在返回响应之前添加调试信息
+        error_log("Response data: " . json_encode([
+            'success' => true,
+            'message' => '漂流瓶已扔出'
+        ]));
     } else {
         error_log("Failed to insert bottle: " . $conn->error);
         echo json_encode(['success' => false, 'message' => '保存失败: ' . $conn->error]);
