@@ -138,18 +138,21 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // 更新UI显示漂流瓶数量
-    function updateBottleCount() {
-        const count = Storage.getBottles().length;
-        const countText = `海里还有 ${count} 个漂流瓶`;
-        document.querySelector('.bottle-count').textContent = countText;
+    async function updateBottleCount() {
+        try {
+            const response = await fetch('/php/stats.php');
+            const data = await response.json();
+            if (data.success) {
+                const countText = `海里还有 ${data.stats.waiting} 个漂流瓶`;
+                document.querySelector('.bottle-count').textContent = countText;
+            }
+        } catch (error) {
+            console.error('获取漂流瓶数量失败:', error);
+        }
     }
 
     // 扔漂流瓶
     throwBottle.addEventListener('click', () => {
-        if (Storage.getBottles().length >= Storage.MAX_BOTTLES) {
-            alert(`海里已经有${Storage.MAX_BOTTLES}个漂流瓶了，等一些瓶子被捡走后再来吧！`);
-            return;
-        }
         writeMessage.classList.remove('hidden');
     });
 
