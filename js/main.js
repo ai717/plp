@@ -101,15 +101,37 @@ document.addEventListener('DOMContentLoaded', () => {
         // 捡漂流瓶
         async pickBottle() {
             try {
-                const response = await fetch('/php/pick.php');
-                const result = await response.json();
-                if (result.success) {
-                    return result.bottle;
+                const response = await fetch('/php/pick.php', {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                
+                console.log('Pick response status:', response.status);
+                const responseText = await response.text();
+                console.log('Pick response text:', responseText);
+                
+                let data;
+                try {
+                    data = JSON.parse(responseText);
+                } catch (e) {
+                    console.error('JSON parse error:', e);
+                    throw new Error('Invalid JSON response');
                 }
-                return null;
+                
+                if (data.success) {
+                    foundMessage.innerHTML = `
+                        <div class="bottle-content">${data.bottle.content}</div>
+                        <div class="bottle-time">扔出时间：${new Date(data.bottle.time).toLocaleString()}</div>
+                    `;
+                    readMessage.classList.remove('hidden');
+                    updateBottleCount();
+                } else {
+                    showToast(data.message || '海里暂时没有漂流瓶哦！', 'info');
+                }
             } catch (error) {
-                console.error('捡漂流瓶失败:', error);
-                return null;
+                console.error('Error picking bottle:', error);
+                showToast('网络错误，请重试！', 'error');
             }
         }
     };
@@ -134,13 +156,44 @@ document.addEventListener('DOMContentLoaded', () => {
     sendMessage.addEventListener('click', async () => {
         const content = message.value.trim();
         if (content) {
-            if (await Storage.addBottle(content)) {
-                message.value = '';
-                writeMessage.classList.add('hidden');
-                showToast('漂流瓶已经扔出去啦！');
-                updateBottleCount();
-            } else {
-                showToast('扔漂流瓶失败，请重试！', 'error');
+            try {
+                // 添加调试日志
+                console.log('Sending content:', content);
+                
+                const response = await fetch('/php/throw.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({ content })
+                });
+                
+                // 添加响应调试
+                console.log('Response status:', response.status);
+                const responseText = await response.text();
+                console.log('Response text:', responseText);
+                
+                // 尝试解析JSON
+                let data;
+                try {
+                    data = JSON.parse(responseText);
+                } catch (e) {
+                    console.error('JSON parse error:', e);
+                    throw new Error('Invalid JSON response');
+                }
+                
+                if (data.success) {
+                    message.value = '';
+                    writeMessage.classList.add('hidden');
+                    showToast('漂流瓶已经扔出去啦！');
+                    updateBottleCount();
+                } else {
+                    showToast(data.message || '扔漂流瓶失败，请重试！', 'error');
+                }
+            } catch (error) {
+                console.error('Error sending bottle:', error);
+                showToast('网络错误，请重试！', 'error');
             }
         } else {
             showToast('请写点什么吧！', 'warning');
@@ -149,16 +202,38 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 捡漂流瓶
     pickBottle.addEventListener('click', async () => {
-        const bottle = await Storage.pickBottle();
-        if (bottle) {
-            foundMessage.innerHTML = `
-                <div class="bottle-content">${bottle.content}</div>
-                <div class="bottle-time">扔出时间：${new Date(bottle.time).toLocaleString()}</div>
-            `;
-            readMessage.classList.remove('hidden');
-            updateBottleCount();
-        } else {
-            showToast('海里暂时没有漂流瓶哦！', 'info');
+        try {
+            const response = await fetch('/php/pick.php', {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            
+            console.log('Pick response status:', response.status);
+            const responseText = await response.text();
+            console.log('Pick response text:', responseText);
+            
+            let data;
+            try {
+                data = JSON.parse(responseText);
+            } catch (e) {
+                console.error('JSON parse error:', e);
+                throw new Error('Invalid JSON response');
+            }
+            
+            if (data.success) {
+                foundMessage.innerHTML = `
+                    <div class="bottle-content">${data.bottle.content}</div>
+                    <div class="bottle-time">扔出时间：${new Date(data.bottle.time).toLocaleString()}</div>
+                `;
+                readMessage.classList.remove('hidden');
+                updateBottleCount();
+            } else {
+                showToast(data.message || '海里暂时没有漂流瓶哦！', 'info');
+            }
+        } catch (error) {
+            console.error('Error picking bottle:', error);
+            showToast('网络错误，请重试！', 'error');
         }
     });
 
