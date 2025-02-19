@@ -18,9 +18,28 @@ body {
     padding: 20px;
 }
 
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 10px 20px;
+    border-radius: 15px;
+    backdrop-filter: blur(5px);
+}
+
+.logo {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+    filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.1));
+}
+
 h1 {
-    color: #fff;
-    margin-bottom: 30px;
+    color: #333;
+    margin: 0;
     text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
 }
 
@@ -138,6 +157,7 @@ button:active {
 .bottle-count {
     color: rgba(255, 255, 255, 0.8);
     margin-bottom: 20px;
+    margin-top: 10px;
     font-size: 14px;
 }
 

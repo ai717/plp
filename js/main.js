@@ -123,6 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     foundMessage.innerHTML = `
                         <div class="bottle-content">${data.bottle.content}</div>
                         <div class="bottle-time">扔出时间：${new Date(data.bottle.time).toLocaleString()}</div>
+                        <div class="bottle-picks">已被捡${data.bottle.pick_count}/5次</div>
                     `;
                     readMessage.classList.remove('hidden');
                     updateBottleCount();
@@ -225,6 +226,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 foundMessage.innerHTML = `
                     <div class="bottle-content">${data.bottle.content}</div>
                     <div class="bottle-time">扔出时间：${new Date(data.bottle.time).toLocaleString()}</div>
+                    <div class="bottle-picks">已被捡${data.bottle.pick_count}/5次</div>
                 `;
                 readMessage.classList.remove('hidden');
                 updateBottleCount();
