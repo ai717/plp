@@ -79,17 +79,19 @@ try {
         exit;
     }
     
-    // 频率限制已移除（测试用）
+          // 频率限制已移除（测试用）
+  
+      // 插入漂流瓶
+      $conn = DB::getConnection();
+-     $sql = "INSERT INTO bottles (content, ip, created_at, pick_count) VALUES (?, ?, NOW(), 0)";
++     $sql = "INSERT INTO bottles (content, ip, user_id, created_at, pick_count) VALUES (?, ?, ?, NOW(), 0)";
+      $stmt = $conn->prepare($sql);
++     $user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
+-     $stmt->bind_param('ss', $content, $ip);
++     $stmt->bind_param('ssi', $content, $ip, $user_id);
 
-    // 插入漂流瓶
-    $conn = DB::getConnection();
-    $sql = "INSERT INTO bottles (content, ip, user_id, created_at, pick_count) VALUES (?, ?, ?, NOW(), 0)";
-    $stmt = $conn->prepare($sql);
-    $user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
-    $stmt->bind_param('ssi', $content, $ip, $user_id);
-
-    if ($stmt->execute()) {
-        error_log("Successfully inserted bottle with content: " . $content);
+      if ($stmt->execute()) {
+          error_log("Successfully inserted bottle with content: " . $content);
         echo json_encode(['success' => true, 'message' => '漂流瓶已扔出']);
         // 在返回响应之前添加调试信息
         error_log("Response data: " . json_encode([
